@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <title> test2 java script </title>
+</head>
+<body>
+<script>
+ /(function (global) {
+  var dc = global.$dc || {};
+  function fetchMenuCategories() {
+    return new Promise(function (resolve, reject) {
+      var requestUrl = proxyUrl + targetUrl;
+      var request = new XMLHttpRequest();
+      request.open('GET', requestUrl, true);
+      request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+          var categories = JSON.parse(request.responseText);
+          resolve(categories);
+        } else if (request.readyState === 4) {
+          reject('Error fetching categories');
+        }
+      };
+      request.send();
+    });
+  }
+  function getRandomCategoryShortName(categories) {
+    var randomIndex = Math.floor(Math.random() * categories.length);
+    return categories[randomIndex].short_name;
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    fetchMenuCategories()
+      .then(function (categories) {
+        var randomCategoryShortName = getRandomCategoryShortName(categories);
+        var specialsTile = document.querySelector('a[href="#"]');
+        if (specialsTile) {
+          specialsTile.setAttribute(
+            "onclick",
+            `$dc.loadMenuItems('${randomCategoryShortName}');`
+          );
+        }
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  });
+  global.$dc = dc;
+})(window);
+</script>
+</body>
+</html>
